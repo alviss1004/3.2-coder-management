@@ -19,11 +19,9 @@ app.use(express.static(path.join(__dirname, "public")));
 app.use(cors());
 const mongoose = require("mongoose");
 /* DB connection*/
-const mongoURI = process.env.MONGODB_URI;
-
 mongoose
-  .connect(mongoURI)
-  .then(() => console.log(`DB connected ${mongoURI}`))
+  .connect(process.env.MONGO_URI)
+  .then(() => console.log("Connected to Database!"))
   .catch((err) => console.log(err));
 app.use("/", indexRouter);
 
