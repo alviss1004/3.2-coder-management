@@ -101,27 +101,22 @@ taskController.searchTasksByUser = async (req, res, next) => {
   }
 };
 
-//Assign or unassign a task to a user by their name
+//Assign a task to a user by their id
 taskController.assignTask = async (req, res, next) => {
   const { taskId } = req.params;
-  const { assigneeName } = req.body;
+  const { userId } = req.body;
   const options = { new: true };
   try {
+    //Mongoose Query
     let targetTask = await Task.findById(taskId);
     //Express validator
     if (!targetTask) throw new AppError(400, "Bad Request", "No task found");
-    const assignedUser = await User.findOne({ name: assigneeName });
+    const assignedUser = await User.findById(userId);
     if (!assignedUser)
       throw new AppError(400, "Bad Request", "No user with that name found");
 
-    if (targetTask.assignee) {
-      targetTask.assignee = null;
-      const index = assignedUser.tasks.indexOf(taskId);
-      if (index > -1) assignedUser.tasks.splice(index, 1);
-    } else {
-      targetTask.assignee = assignedUser._id;
-      assignedUser.tasks.push(taskId);
-    }
+    targetTask.assignee = assignedUser._id;
+    assignedUser.tasks.push(taskId);
 
     await targetTask.save();
     await assignedUser.save();
@@ -132,7 +127,41 @@ taskController.assignTask = async (req, res, next) => {
       true,
       targetTask,
       null,
-      "Update task's assignee successfully"
+      "Assign task to user successfully"
+    );
+  } catch (err) {
+    next(err);
+  }
+};
+
+//Unassign a task to a user by their id
+taskController.unassignTask = async (req, res, next) => {
+  const { taskId } = req.params;
+  const { userId } = req.body;
+  const options = { new: true };
+  try {
+    //Mongoose Query
+    let targetTask = await Task.findById(taskId);
+    //Express validator
+    if (!targetTask) throw new AppError(400, "Bad Request", "No task found");
+    const unassignedUser = await User.findById(userId);
+    if (!unassignedUser)
+      throw new AppError(400, "Bad Request", "No user with that name found");
+
+    targetTask.assignee = null;
+    const index = unassignedUser.tasks.indexOf(taskId);
+    if (index > -1) unassignedUser.tasks.splice(index, 1);
+
+    await targetTask.save();
+    await unassignedUser.save();
+
+    sendResponse(
+      res,
+      200,
+      true,
+      targetTask,
+      null,
+      "Remove task from user successfully"
     );
   } catch (err) {
     next(err);

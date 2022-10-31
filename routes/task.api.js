@@ -8,6 +8,7 @@ const {
   updateTaskStatus,
   deleteTask,
   searchTasksByUser,
+  unassignTask,
 } = require("../controllers/task.controller.js");
 
 /**
@@ -40,10 +41,17 @@ router.get("/user", searchTasksByUser);
 
 /**
  * @route PUT api/tasks/:taskId
- * @description Assign or unassign task to a employee by their name (in body)
+ * @description Assign a task to a employee by their id (in body)
  * @access private
  */
-router.put("/:taskId", assignTask);
+router.put("/assign/:taskId", assignTask);
+
+/**
+ * @route PUT api/tasks/:taskId
+ * @description Unassign a task to a employee by their id (in body)
+ * @access private
+ */
+router.put("/unassign/:taskId", unassignTask);
 
 /**
  * @route PUT api/tasks/status/:taskId
