@@ -171,7 +171,7 @@ taskController.unassignTask = async (req, res, next) => {
 //Update a task's status
 taskController.updateTaskStatus = async (req, res, next) => {
   const { taskId } = req.params;
-  const { newStatus } = req.body;
+  const newStatus = req.body;
 
   //options allow you to modify query. e.g new true return lastest update of data
   const options = { new: true };
@@ -181,12 +181,17 @@ taskController.updateTaskStatus = async (req, res, next) => {
     if (!task) throw new AppError(400, "Bad Request", "No task found");
     if (!ObjectId.isValid(taskId))
       throw new AppError(400, "Bad Request", "Not a valid object id");
+    if (
+      Object.keys(newStatus).length > 1 ||
+      Object.keys(newStatus)[0] !== "newStatus"
+    )
+      throw new AppError(400, "Bad Request", "Not a valid request body");
 
     if (task.status !== "done") {
-      task.status = newStatus;
+      task.status = newStatus.newStatus;
     } else {
-      if (newStatus === "archive") {
-        task.status = newStatus;
+      if (newStatus.newStatus === "archive") {
+        task.status = newStatus.newStatus;
       } else {
         throw new AppError(
           400,
