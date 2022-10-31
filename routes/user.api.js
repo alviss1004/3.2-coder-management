@@ -3,7 +3,7 @@ const router = express.Router();
 const {
   createUser,
   getUsers,
-  searchUser,
+  getUserById,
 } = require("../controllers/user.controller.js");
 
 /**
@@ -19,6 +19,13 @@ router.get("/", getUsers);
  * @access private, assigner
  */
 router.post("/", createUser);
+
+/**
+ * @route GET api/users/:id
+ * @description Get user by id
+ * @access public
+ */
+router.get("/:id", getUserById);
 
 //export
 module.exports = router;

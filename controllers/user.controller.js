@@ -1,5 +1,6 @@
 const { sendResponse, AppError } = require("../helpers/utils.js");
 const mongoose = require("mongoose");
+var ObjectId = require("mongoose").Types.ObjectId;
 const User = require("../models/User");
 const Task = require("../models/Task.js");
 const userController = {};
@@ -56,6 +57,23 @@ userController.getUsers = async (req, res, next) => {
     users = users.slice(offset, offset + limit);
 
     sendResponse(res, 200, true, users, null, "Get User List Successfully!");
+  } catch (err) {
+    next(err);
+  }
+};
+
+//Get user by id
+userController.getUserById = async (req, res, next) => {
+  const { id } = req.params;
+
+  try {
+    const targetUser = await User.findById(id).populate("tasks");
+    //Express validator
+    if (!targetUser) throw new AppError(400, "Bad Request", "No user found");
+    if (!ObjectId.isValid(id))
+      throw new AppError(400, "Bad Request", "Not a valid object id");
+
+    sendResponse(res, 200, true, targetUser, null, "User Found");
   } catch (err) {
     next(err);
   }
