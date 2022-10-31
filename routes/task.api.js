@@ -33,7 +33,7 @@ router.get("/task/:id", getTaskById);
 
 /**
  * @route GET api/tasks/user
- * @description Get tasks by user's name or id in query
+ * @description Get tasks by user's name or id in query (userName, userId)
  * @access private
  */
 router.get("/user", searchTasksByUser);
@@ -57,7 +57,7 @@ router.put("/status/:taskId", updateTaskStatus);
  * @description Soft delete a task by id
  * @access private
  */
-router.put("/task/:taskId", deleteTask);
+router.delete("/:taskId", deleteTask);
 
 //export
 module.exports = router;
