@@ -111,15 +111,15 @@ taskController.assignTask = async (req, res, next) => {
     let targetTask = await Task.findById(taskId);
     //Express validator
     if (!targetTask) throw new AppError(400, "Bad Request", "No task found");
-    const assignedUser = await User.findById(userId);
-    if (!assignedUser)
+    const newAssignee = await User.findById(userId);
+    if (!newAssignee)
       throw new AppError(400, "Bad Request", "No user with that name found");
 
-    targetTask.assignee = assignedUser._id;
-    assignedUser.tasks.push(taskId);
+    targetTask.assignee = newAssignee._id;
+    newAssignee.tasks.push(taskId);
 
     await targetTask.save();
-    await assignedUser.save();
+    await newAssignee.save();
 
     sendResponse(
       res,
@@ -144,16 +144,16 @@ taskController.unassignTask = async (req, res, next) => {
     let targetTask = await Task.findById(taskId);
     //Express validator
     if (!targetTask) throw new AppError(400, "Bad Request", "No task found");
-    const unassignedUser = await User.findById(userId);
-    if (!unassignedUser)
+    const removedAssignee = await User.findById(userId);
+    if (!removedAssignee)
       throw new AppError(400, "Bad Request", "No user with that name found");
 
     targetTask.assignee = null;
-    const index = unassignedUser.tasks.indexOf(taskId);
-    if (index > -1) unassignedUser.tasks.splice(index, 1);
+    const index = removedAssignee.tasks.indexOf(taskId);
+    if (index > -1) removedAssignee.tasks.splice(index, 1);
 
     await targetTask.save();
-    await unassignedUser.save();
+    await removedAssignee.save();
 
     sendResponse(
       res,
