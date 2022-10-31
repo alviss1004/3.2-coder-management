@@ -33,7 +33,7 @@ router.get("/task/:id", getTaskById);
 
 /**
  * @route GET api/tasks/user
- * @description Get tasks by user's name or id
+ * @description Get tasks by user's name or id in query
  * @access private
  */
 router.get("/user", searchTasksByUser);
@@ -47,14 +47,14 @@ router.put("/:taskId", assignTask);
 
 /**
  * @route PUT api/tasks/status/:taskId
- * @description Update task's status
+ * @description Update task's status by task id
  * @access private
  */
 router.put("/status/:taskId", updateTaskStatus);
 
 /**
  * @route PUT api/tasks/task/:taskId
- * @description Soft delete a task
+ * @description Soft delete a task by id
  * @access private
  */
 router.put("/task/:taskId", deleteTask);
