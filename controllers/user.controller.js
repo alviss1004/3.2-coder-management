@@ -39,27 +39,23 @@ userController.createUser = async (req, res, next) => {
 
 //Get all users
 userController.getUsers = async (req, res, next) => {
+  let { page, limit, name } = req.query;
   const filter = { isDeleted: false };
+  page = parseInt(page) || 1;
+  limit = parseInt(limit) || 10;
+
+  if (name) filter.name = name;
+
   try {
     //mongoose query
-    const users = await User.find(filter).populate("tasks");
+    let users = await User.find(filter).populate("tasks");
+    //Express validator
+    if (!users) throw new AppError(400, "Bad Request", "No user found");
+
+    let offset = limit * (page - 1);
+    users = users.slice(offset, offset + limit);
 
     sendResponse(res, 200, true, users, null, "Get User List Successfully!");
-  } catch (err) {
-    next(err);
-  }
-};
-
-//Search for a user by name
-userController.searchUser = async (req, res, next) => {
-  const { targetName } = req.params;
-
-  try {
-    const targetUser = await User.findOne({ name: targetName });
-    //Express validator
-    if (!targetUser) throw new AppError(400, "Bad Request", "No user found");
-
-    sendResponse(res, 200, true, targetUser, null, "User Found");
   } catch (err) {
     next(err);
   }

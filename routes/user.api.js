@@ -20,12 +20,5 @@ router.get("/", getUsers);
  */
 router.post("/", createUser);
 
-/**
- * @route GET api/users/:targetName
- * @description Get user by name
- * @access public
- */
-router.get("/:targetName", searchUser);
-
 //export
 module.exports = router;

@@ -45,6 +45,8 @@ taskController.getTasks = async (req, res, next) => {
   try {
     //mongoose query
     const tasks = await Task.find(filter).populate("assignee");
+    //Express validator
+    if (!tasks) throw new AppError(400, "Bad Request", "No task found");
 
     sendResponse(res, 200, true, tasks, null, "Get Task List Successfully!");
   } catch (err) {
@@ -68,12 +70,19 @@ taskController.getTaskById = async (req, res, next) => {
     next(err);
   }
 };
-//Search all tasks of 1 member by name
-taskController.searchTasksByUserName = async (req, res, next) => {
-  const { targetName } = req.params;
+
+//Search all tasks of 1 member by name or id
+taskController.searchTasksByUser = async (req, res, next) => {
+  let { userName, userId } = req.query;
+  userId = mongoose.Types.ObjectId(userId);
 
   try {
-    let user = await User.findOne({ name: targetName });
+    let user = null;
+    if (userName) {
+      user = await User.findOne({ name: userName });
+    } else {
+      user = await User.findById(userId);
+    }
     //Express validator
     if (!user) throw new AppError(400, "Bad Request", "No user found");
 
@@ -85,60 +94,32 @@ taskController.searchTasksByUserName = async (req, res, next) => {
       true,
       userTasks,
       null,
-      `Get all tasks of ${targetName} successfully`
+      `Get all tasks of user successfully`
     );
   } catch (err) {
     next(err);
   }
 };
 
-//Search all tasks of 1 member by id
-taskController.searchTasksByUserId = async (req, res, next) => {
-  const { userId } = req.params;
-
-  try {
-    let user = await User.findById(userId);
-    //Express validator
-    if (!ObjectId.isValid(userId))
-      throw new AppError(400, "Bad Request", "Not a valid object id");
-    if (!user) throw new AppError(400, "Bad Request", "No user found");
-
-    const userTasks = user.tasks;
-
-    sendResponse(
-      res,
-      200,
-      true,
-      userTasks,
-      null,
-      `Get all tasks of user with id ${userId} successfully`
-    );
-  } catch (err) {
-    next(err);
-  }
-};
-
-//Assign or unassign a task to a user
+//Assign or unassign a task to a user by their name
 taskController.assignTask = async (req, res, next) => {
   const { taskId } = req.params;
-  const { assigneeId } = req.body;
+  const { assigneeName } = req.body;
   const options = { new: true };
   try {
     let targetTask = await Task.findById(taskId);
     //Express validator
     if (!targetTask) throw new AppError(400, "Bad Request", "No task found");
-    const assignedUser = await User.findById(assigneeId);
+    const assignedUser = await User.findOne({ name: assigneeName });
     if (!assignedUser)
-      throw new AppError(400, "Bad Request", "No user with the provided id");
-    if (!ObjectId.isValid(taskId) || !!ObjectId.isValid(assigneeId))
-      throw new AppError(400, "Bad Request", "Not a valid object id");
+      throw new AppError(400, "Bad Request", "No user with that name found");
 
     if (targetTask.assignee) {
       targetTask.assignee = null;
       const index = assignedUser.tasks.indexOf(taskId);
       if (index > -1) assignedUser.tasks.splice(index, 1);
     } else {
-      targetTask.assignee = assigneeId;
+      targetTask.assignee = assignedUser._id;
       assignedUser.tasks.push(taskId);
     }
 

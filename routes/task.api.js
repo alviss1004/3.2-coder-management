@@ -4,11 +4,10 @@ const {
   createTask,
   getTasks,
   getTaskById,
-  searchTasksByUserName,
   assignTask,
-  searchTasksByUserId,
   updateTaskStatus,
   deleteTask,
+  searchTasksByUser,
 } = require("../controllers/task.controller.js");
 
 /**
@@ -30,25 +29,18 @@ router.post("/", createTask);
  * @description Get task by id
  * @access private
  */
-router.get("/:id", getTaskById);
+router.get("/task/:id", getTaskById);
 
 /**
- * @route GET api/tasks/:targetName
- * @description Get tasks by user's name
+ * @route GET api/tasks/user
+ * @description Get tasks by user's name or id
  * @access private
  */
-router.get("/user/:targetName", searchTasksByUserName);
-
-/**
- * @route GET api/tasks/:userId
- * @description Get tasks by user's id
- * @access private
- */
-router.get("/user/:userId", searchTasksByUserId);
+router.get("/user", searchTasksByUser);
 
 /**
  * @route PUT api/tasks/:taskId
- * @description Assign or unassign task to a employee
+ * @description Assign or unassign task to a employee by their name (in body)
  * @access private
  */
 router.put("/:taskId", assignTask);
